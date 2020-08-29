@@ -1,0 +1,39 @@
+{
+  "name": "manuscripts-track-changes",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "test",
+    "start": "parcel ./src/index.html"
+  },
+  "author": "@CAYdenberg",
+  "license": "MIT",
+  "dependencies": {
+    "prosemirror-example-setup": "^1.1.2",
+    "prosemirror-schema-basic": "^1.1.2",
+    "prosemirror-state": "^1.3.3",
+    "prosemirror-view": "^1.15.5",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.7.4",
+    "@babel/plugin-proposal-class-properties": "^7.8.3",
+    "@babel/plugin-syntax-dynamic-import": "^7.7.4",
+    "@babel/plugin-syntax-object-rest-spread": "^7.7.4",
+    "@babel/preset-env": "^7.7.4",
+    "@babel/preset-react": "^7.7.4",
+    "@babel/preset-typescript": "^7.7.4",
+    "@manuscripts/tslint-config": "^0.1.4",
+    "@types/prosemirror-schema-basic": "^1.0.1",
+    "@types/prosemirror-state": "^1.2.5",
+    "@types/prosemirror-view": "^1.15.1",
+    "@types/react": "^16.9.48",
+    "@types/react-color": "^3.0.4",
+    "@types/react-dom": "^16.9.8",
+    "parcel-bundler": "^1.12.4",
+    "tslint": "^5.20.1",
+    "typescript": "^4.0.2"
+  }
+}
