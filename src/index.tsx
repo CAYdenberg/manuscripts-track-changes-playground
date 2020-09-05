@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom'
 import CommitForm from './CommitForm'
 import CommitsList from './CommitsList'
 import useEditor from './useEditor'
-import { trackPlugin } from './trackPlugin'
 
 const App: React.FC = () => {
   const { onRender, state, dispatch } = useEditor()
@@ -14,7 +13,7 @@ const App: React.FC = () => {
 
       <CommitForm state={state} dispatch={dispatch} />
 
-      {state && <CommitsList commits={trackPlugin.getState(state).commits} />}
+      <CommitsList state={state} dispatch={dispatch} />
     </React.Fragment>
   )
 }

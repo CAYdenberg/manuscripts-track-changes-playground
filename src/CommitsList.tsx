@@ -1,18 +1,36 @@
 import React from 'react'
-import { Commit } from './Editor'
+import { trackPlugin } from './trackPlugin'
+import { Transaction, EditorState } from 'prosemirror-state'
+import { highlightPlugin } from './HighlightPlugin'
 
 interface Props {
-  commits: Commit[]
+  state?: EditorState
+  dispatch: (tr: Transaction) => void
 }
 
-const CommitsList: React.FC<Props> = ({ commits }) => (
-  <div>
-    {commits.map((commit) => (
-      <div className="commit" key={commit.time.toUTCString()}>
-        {commit.message}
-      </div>
-    ))}
-  </div>
-)
+const CommitsList: React.FC<Props> = ({ state, dispatch }) => {
+  if (!state) return null
+
+  const { commits } = trackPlugin.getState(state)
+
+  return (
+    <div>
+      {commits.map((commit, i) => (
+        <div
+          className="commit"
+          key={commit.time.toUTCString()}
+          onMouseOver={() => {
+            dispatch(state.tr.setMeta(highlightPlugin, { add: commit }))
+          }}
+          onMouseOut={() => {
+            dispatch(state.tr.setMeta(highlightPlugin, { clear: commit }))
+          }}
+        >
+          {commit.message}
+        </div>
+      ))}
+    </div>
+  )
+}
 
 export default CommitsList

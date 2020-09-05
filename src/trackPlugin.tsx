@@ -106,7 +106,7 @@ const updateBlameMap = (map: Span[], transform: Transform, id: number) => {
 // TrackState{
 export class TrackState {
   public commits: Commit[]
-  private blameMap: Span[]
+  public blameMap: Span[]
   private uncommittedSteps: Step[]
   private uncommittedMaps: Map[]
 
