@@ -5,7 +5,9 @@ import { exampleSetup } from 'prosemirror-example-setup'
 import { schema } from 'prosemirror-schema-basic'
 
 import { trackPlugin } from './trackPlugin'
-import { highlightPlugin } from './HighlightPlugin'
+import { highlightPlugin } from './highlightPlugin'
+
+import { newDocument } from './io'
 
 export default () => {
   const view = useRef<EditorView>()
@@ -24,6 +26,7 @@ export default () => {
     if (!dom) return
 
     const state = EditorState.create({
+      doc: newDocument(),
       schema,
       plugins: exampleSetup({ schema }).concat(trackPlugin, highlightPlugin),
     })
@@ -33,8 +36,6 @@ export default () => {
       state: state,
       dispatchTransaction: dispatch,
     })
-
-    dispatch(state.tr.insertText('Type something, and then commit it.'))
   }, [])
 
   return {
