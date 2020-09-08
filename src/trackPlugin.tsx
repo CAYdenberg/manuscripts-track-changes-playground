@@ -1,26 +1,17 @@
 import { Plugin, Transaction } from 'prosemirror-state'
 import { Step, StepMap as Map, Transform } from 'prosemirror-transform'
 import { schema } from 'prosemirror-schema-basic'
+import uuid from 'uuid/v4'
 
 export class Commit {
   public message: string
-  public time: Date
   public steps: Step[]
   public maps: Map[]
-  public hidden: boolean
 
-  constructor(
-    message: string,
-    time: Date,
-    steps: Step[],
-    maps: Map[],
-    hidden: boolean = false
-  ) {
+  constructor(message: string, steps: Step[], maps: Map[]) {
     this.message = message
-    this.time = time
     this.steps = steps
     this.maps = maps
-    this.hidden = hidden
   }
 }
 
@@ -149,11 +140,10 @@ export class TrackState {
 
   // When a transaction is marked as a commit, this is used to put any
   // uncommitted steps into a new commit.
-  applyCommit(message: string, time: Date) {
+  applyCommit(message: string) {
     if (this.uncommittedSteps.length == 0) return this
     let commit = new Commit(
       message,
-      time,
       this.uncommittedSteps,
       this.uncommittedMaps
     )
@@ -174,10 +164,9 @@ export const trackPlugin = new Plugin<TrackState, typeof schema>({
     apply(tr: Transaction<typeof schema>, tracked: TrackState) {
       if (tr.docChanged) tracked = tracked.applyTransform(tr)
 
-      let commitMessage = tr.getMeta(this)
-      if (commitMessage)
-        tracked = tracked.applyCommit(commitMessage, new Date(tr.time))
-      return tracked
+      const action = tr.getMeta(this)
+
+      return action ? tracked.applyCommit(uuid()) : tracked
     },
   },
 })

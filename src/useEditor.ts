@@ -35,7 +35,6 @@ export default () => {
     })
 
     dispatch(state.tr.insertText('Type something, and then commit it.'))
-    dispatch(view.current.state.tr.setMeta(trackPlugin, 'Initial commit'))
   }, [])
 
   return {

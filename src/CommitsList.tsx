@@ -1,7 +1,7 @@
 import React from 'react'
 import { trackPlugin } from './trackPlugin'
 import { Transaction, EditorState } from 'prosemirror-state'
-import { highlightPlugin } from './HighlightPlugin'
+import { highlightPlugin } from './highlightPlugin'
 
 interface Props {
   state?: EditorState
@@ -18,13 +18,13 @@ const CommitsList: React.FC<Props> = ({ state, dispatch }) => {
       {commits.map((commit, i) => (
         <div
           className="commit"
-          key={commit.time.toUTCString()}
-          onMouseOver={() => {
-            dispatch(state.tr.setMeta(highlightPlugin, { add: commit }))
-          }}
-          onMouseOut={() => {
-            dispatch(state.tr.setMeta(highlightPlugin, { clear: commit }))
-          }}
+          key={commit.message}
+          // onMouseOver={() => {
+          //   dispatch(state.tr.setMeta(highlightPlugin, { add: commit }))
+          // }}
+          // onMouseOut={() => {
+          //   dispatch(state.tr.setMeta(highlightPlugin, { clear: commit }))
+          // }}
         >
           {commit.message}
         </div>
