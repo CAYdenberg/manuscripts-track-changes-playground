@@ -14,7 +14,9 @@ const CommitForm: React.FC<Props> = ({ state, dispatch }) => {
 
   const handleSubmit = (e: React.SyntheticEvent) => {
     e.preventDefault()
-    dispatch(state.tr.setMeta(trackPlugin, true))
+    dispatch(
+      state.tr.setMeta(trackPlugin, { type: 'COMMIT', message: inputVal })
+    )
     setInputVal('')
     return false
   }

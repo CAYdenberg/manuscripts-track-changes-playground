@@ -8,11 +8,13 @@ export class Commit {
   public id: string
   public steps: Step[]
   public maps: Map[]
+  public message: string
 
-  constructor(steps: Step[], maps: Map[]) {
+  constructor(steps: Step[], maps: Map[], message?: string) {
     this.id = uuid()
     this.steps = steps
     this.maps = maps
+    this.message = message || ''
   }
 }
 
@@ -141,9 +143,13 @@ export class TrackState {
 
   // When a transaction is marked as a commit, this is used to put any
   // uncommitted steps into a new commit.
-  applyCommit() {
+  applyCommit(message?: string) {
     if (this.uncommittedSteps.length == 0) return this
-    let commit = new Commit(this.uncommittedSteps, this.uncommittedMaps)
+    let commit = new Commit(
+      this.uncommittedSteps,
+      this.uncommittedMaps,
+      message
+    )
     return new TrackState(this.blameMap, this.commits.concat(commit))
   }
 
@@ -182,18 +188,31 @@ export const trackPlugin = new Plugin<PluginState, typeof schema>({
       }
     },
     apply(tr, state, _, editorState) {
-      console.log(state.tracked.blameMap, state.tracked.commits)
-
+      // calculate the default next state if no actions in this domain
+      // are taken
       const tracked = tr.docChanged
         ? state.tracked.applyTransform(tr)
         : state.tracked
-      const action = tr.getMeta(this)
-
-      return {
+      const deco = DecorationSet.create(
+        editorState.doc,
+        tracked.decorateBlameMap()
+      )
+      const nextState = {
         ...state,
-        deco: DecorationSet.create(editorState.doc, tracked.decorateBlameMap()),
-        tracked: action ? tracked.applyCommit() : tracked,
+        deco,
+        tracked,
       }
+
+      const action = tr.getMeta(this)
+      if (!action) return nextState
+
+      switch (action.type) {
+        case 'COMMIT': {
+          return { ...nextState, tracked: tracked.applyCommit(action.message) }
+        }
+      }
+
+      return nextState
     },
   },
   props: {

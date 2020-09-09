@@ -12,6 +12,7 @@ const CommitsList: React.FC<Props> = ({ state, dispatch }) => {
 
   const { tracked } = trackPlugin.getState(state)
   const { commits } = tracked
+  console.log(commits)
 
   return (
     <div>
@@ -26,7 +27,7 @@ const CommitsList: React.FC<Props> = ({ state, dispatch }) => {
           //   dispatch(state.tr.setMeta(highlightPlugin, { clear: commit }))
           // }}
         >
-          {commit.id}
+          {commit.message}
         </div>
       ))}
     </div>

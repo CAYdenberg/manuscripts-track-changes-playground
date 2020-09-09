@@ -349,21 +349,10 @@ li.ProseMirror-selectednode:after {
 .commit {
   margin-bottom: 4px;
 }
-.commit:hover {
-  background: #ff8;
-}
 .commit-revert {
   color: #a22;
 }
-.commit-time {
-  background: #5ab;
-  padding: 0 5px;
-  color: white;
-  font-size: 90%;
-}
-.commit-blame {
-  background: #ff8;
-}
+
 .blame-info {
   position: fixed;
   border: 1px solid silver;
