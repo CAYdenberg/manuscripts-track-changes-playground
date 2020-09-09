@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "test",
-    "start": "parcel ./src/index.html"
+    "start": "parcel ./src/index.html",
+    "typecheck": "tsc --noEmit"
   },
   "author": "@CAYdenberg",
   "license": "MIT",

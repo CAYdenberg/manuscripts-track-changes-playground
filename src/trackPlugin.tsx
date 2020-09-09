@@ -2,14 +2,15 @@ import { Plugin, Transaction } from 'prosemirror-state'
 import { Step, StepMap as Map, Transform } from 'prosemirror-transform'
 import { schema } from 'prosemirror-schema-basic'
 import uuid from 'uuid/v4'
+import { DecorationSet, Decoration } from 'prosemirror-view'
 
 export class Commit {
-  public message: string
+  public id: string
   public steps: Step[]
   public maps: Map[]
 
-  constructor(message: string, steps: Step[], maps: Map[]) {
-    this.message = message
+  constructor(steps: Step[], maps: Map[]) {
+    this.id = uuid()
     this.steps = steps
     this.maps = maps
   }
@@ -103,9 +104,9 @@ export class TrackState {
 
   constructor(
     blameMap: Span[],
-    commits: Commit[],
-    uncommittedSteps: Step[],
-    uncommittedMaps: Map[]
+    commits?: Commit[],
+    uncommittedSteps?: Step[],
+    uncommittedMaps?: Map[]
   ) {
     // The blame map is a data structure that lists a sequence of
     // document ranges, along with the commit that inserted them. This
@@ -113,11 +114,11 @@ export class TrackState {
     // that was inserted by a commit.
     this.blameMap = blameMap
     // The commit history, as an array of objects.
-    this.commits = commits
+    this.commits = commits || []
     // Inverted steps and their maps corresponding to the changes that
     // have been made since the last commit.
-    this.uncommittedSteps = uncommittedSteps
-    this.uncommittedMaps = uncommittedMaps
+    this.uncommittedSteps = uncommittedSteps || []
+    this.uncommittedMaps = uncommittedMaps || []
   }
 
   // Apply a transform to this state
@@ -140,33 +141,64 @@ export class TrackState {
 
   // When a transaction is marked as a commit, this is used to put any
   // uncommitted steps into a new commit.
-  applyCommit(message: string) {
+  applyCommit() {
     if (this.uncommittedSteps.length == 0) return this
-    let commit = new Commit(
-      message,
-      this.uncommittedSteps,
-      this.uncommittedMaps
-    )
-    return new TrackState(this.blameMap, this.commits.concat(commit), [], [])
+    let commit = new Commit(this.uncommittedSteps, this.uncommittedMaps)
+    return new TrackState(this.blameMap, this.commits.concat(commit))
+  }
+
+  decorateBlameMap() {
+    return this.blameMap
+      .map((span) => {
+        if (span.commit === null) {
+          return null
+        }
+        if (span.commit < this.commits.length) {
+          return Decoration.inline(span.from, span.to, {
+            class: 'blame-committed',
+          })
+        }
+        return Decoration.inline(span.from, span.to, {
+          class: 'blame-uncommitted',
+        })
+      })
+      .filter(Boolean) as Decoration[]
   }
 }
 
-export const trackPlugin = new Plugin<TrackState, typeof schema>({
-  state: {
-    init(_, instance): TrackState {
-      return new TrackState(
-        [new Span(0, instance.doc.content.size, null)],
-        [],
-        [],
-        []
-      )
-    },
-    apply(tr: Transaction<typeof schema>, tracked: TrackState) {
-      if (tr.docChanged) tracked = tracked.applyTransform(tr)
+interface PluginState {
+  tracked: TrackState
+  deco: DecorationSet
+  focusedCommit: number | null
+}
 
+export const trackPlugin = new Plugin<PluginState, typeof schema>({
+  state: {
+    init(_, instance): PluginState {
+      return {
+        tracked: new TrackState([new Span(0, instance.doc.content.size, null)]),
+        deco: DecorationSet.empty,
+        focusedCommit: null,
+      }
+    },
+    apply(tr, state, _, editorState) {
+      console.log(state.tracked.blameMap, state.tracked.commits)
+
+      const tracked = tr.docChanged
+        ? state.tracked.applyTransform(tr)
+        : state.tracked
       const action = tr.getMeta(this)
 
-      return action ? tracked.applyCommit(uuid()) : tracked
+      return {
+        ...state,
+        deco: DecorationSet.create(editorState.doc, tracked.decorateBlameMap()),
+        tracked: action ? tracked.applyCommit() : tracked,
+      }
+    },
+  },
+  props: {
+    decorations(state) {
+      return this.getState(state).deco
     },
   },
 })

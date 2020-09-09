@@ -1,7 +1,6 @@
 import React from 'react'
 import { trackPlugin } from './trackPlugin'
 import { Transaction, EditorState } from 'prosemirror-state'
-import { highlightPlugin } from './highlightPlugin'
 
 interface Props {
   state?: EditorState
@@ -11,14 +10,15 @@ interface Props {
 const CommitsList: React.FC<Props> = ({ state, dispatch }) => {
   if (!state) return null
 
-  const { commits } = trackPlugin.getState(state)
+  const { tracked } = trackPlugin.getState(state)
+  const { commits } = tracked
 
   return (
     <div>
-      {commits.map((commit, i) => (
+      {commits.map((commit) => (
         <div
           className="commit"
-          key={commit.message}
+          key={commit.id}
           // onMouseOver={() => {
           //   dispatch(state.tr.setMeta(highlightPlugin, { add: commit }))
           // }}
@@ -26,7 +26,7 @@ const CommitsList: React.FC<Props> = ({ state, dispatch }) => {
           //   dispatch(state.tr.setMeta(highlightPlugin, { clear: commit }))
           // }}
         >
-          {commit.message}
+          {commit.id}
         </div>
       ))}
     </div>

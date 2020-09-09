@@ -5,8 +5,6 @@ import { exampleSetup } from 'prosemirror-example-setup'
 import { schema } from 'prosemirror-schema-basic'
 
 import { trackPlugin } from './trackPlugin'
-import { highlightPlugin } from './highlightPlugin'
-
 import { newDocument } from './io'
 
 export default () => {
@@ -28,7 +26,7 @@ export default () => {
     const state = EditorState.create({
       doc: newDocument(),
       schema,
-      plugins: exampleSetup({ schema }).concat(trackPlugin, highlightPlugin),
+      plugins: exampleSetup({ schema }).concat(trackPlugin),
     })
     setState(state)
 

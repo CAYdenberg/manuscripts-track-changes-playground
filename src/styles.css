@@ -380,6 +380,11 @@ li.ProseMirror-selectednode:after {
   margin: 6px 0;
   position: relative;
 }
-.blame-marker {
-  background: #ff8;
+
+.blame-committed {
+  background-color: rgba(57, 255, 20, 0.5);
+}
+
+.blame-uncommitted {
+  background-color: rgba(255, 218, 20, 0.5);
 }
