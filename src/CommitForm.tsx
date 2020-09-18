@@ -14,14 +14,16 @@ const CommitForm: React.FC<Props> = ({ state, dispatch }) => {
 
   const handleSubmit = (e: React.SyntheticEvent) => {
     e.preventDefault()
-    dispatch(state.tr.setMeta(trackPlugin, inputVal))
+    dispatch(
+      state.tr.setMeta(trackPlugin, { type: 'COMMIT', message: inputVal })
+    )
     setInputVal('')
     return false
   }
 
   return (
     <form id="commit" onSubmit={handleSubmit}>
-      <span>Commit message:</span>
+      <span>Edit comment:</span>
       <input
         type="text"
         id="message"
@@ -30,7 +32,7 @@ const CommitForm: React.FC<Props> = ({ state, dispatch }) => {
         onChange={(e) => setInputVal(e.target.value)}
       />
       <button id="commitbutton" type="submit">
-        commit
+        submit
       </button>
     </form>
   )

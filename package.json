@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "test",
-    "start": "parcel ./src/index.html"
+    "start": "parcel ./src/index.html",
+    "typecheck": "tsc --noEmit"
   },
   "author": "@CAYdenberg",
   "license": "MIT",
@@ -15,7 +16,8 @@
     "prosemirror-state": "^1.3.3",
     "prosemirror-view": "^1.15.5",
     "react": "^16.13.1",
-    "react-dom": "^16.13.1"
+    "react-dom": "^16.13.1",
+    "uuid": "^3.2.1"
   },
   "devDependencies": {
     "@babel/core": "^7.7.4",
@@ -32,6 +34,7 @@
     "@types/react": "^16.9.48",
     "@types/react-color": "^3.0.4",
     "@types/react-dom": "^16.9.8",
+    "@types/uuid": "^3.2.1",
     "parcel-bundler": "^1.12.4",
     "tslint": "^5.20.1",
     "typescript": "^4.0.2"
