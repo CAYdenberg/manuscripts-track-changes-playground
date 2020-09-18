@@ -153,11 +153,16 @@ export class TrackState {
     return new TrackState(this.blameMap, this.commits.concat(commit))
   }
 
-  decorateBlameMap() {
+  decorateBlameMap(focusedCommit: number | null) {
     return this.blameMap
       .map((span) => {
         if (span.commit === null) {
           return null
+        }
+        if (span.commit === focusedCommit) {
+          return Decoration.inline(span.from, span.to, {
+            class: 'blame-focused',
+          })
         }
         if (span.commit < this.commits.length) {
           return Decoration.inline(span.from, span.to, {
@@ -195,7 +200,7 @@ export const trackPlugin = new Plugin<PluginState, typeof schema>({
         : state.tracked
       const deco = DecorationSet.create(
         editorState.doc,
-        tracked.decorateBlameMap()
+        tracked.decorateBlameMap(state.focusedCommit)
       )
       const nextState = {
         ...state,
@@ -209,6 +214,16 @@ export const trackPlugin = new Plugin<PluginState, typeof schema>({
       switch (action.type) {
         case 'COMMIT': {
           return { ...nextState, tracked: tracked.applyCommit(action.message) }
+        }
+        case 'FOCUS': {
+          return {
+            ...nextState,
+            focusedCommit: action.commit,
+            deco: DecorationSet.create(
+              editorState.doc,
+              tracked.decorateBlameMap(action.commit)
+            ),
+          }
         }
       }
 

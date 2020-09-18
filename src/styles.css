@@ -377,3 +377,7 @@ li.ProseMirror-selectednode:after {
 .blame-uncommitted {
   background-color: rgba(255, 218, 20, 0.5);
 }
+
+.blame-focused {
+  background-color: rgba(13, 213, 252, 0.5);
+}

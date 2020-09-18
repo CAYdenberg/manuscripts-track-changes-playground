@@ -12,20 +12,19 @@ const CommitsList: React.FC<Props> = ({ state, dispatch }) => {
 
   const { tracked } = trackPlugin.getState(state)
   const { commits } = tracked
-  console.log(commits)
 
   return (
     <div>
-      {commits.map((commit) => (
+      {commits.map((commit, i) => (
         <div
           className="commit"
           key={commit.id}
-          // onMouseOver={() => {
-          //   dispatch(state.tr.setMeta(highlightPlugin, { add: commit }))
-          // }}
-          // onMouseOut={() => {
-          //   dispatch(state.tr.setMeta(highlightPlugin, { clear: commit }))
-          // }}
+          onClick={(e) => {
+            e.preventDefault()
+            const { tr } = state
+            tr.setMeta(trackPlugin, { type: 'FOCUS', commit: i })
+            dispatch(tr)
+          }}
         >
           {commit.message}
         </div>
