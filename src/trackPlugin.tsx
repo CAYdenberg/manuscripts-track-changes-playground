@@ -36,7 +36,8 @@ const insertIntoBlameMap = (
   to: number,
   commit: number
 ) => {
-  if (from >= to) return
+  // if (from >= to) return
+
   let pos = 0,
     next
   for (; pos < map.length; pos++) {
@@ -160,20 +161,27 @@ export class TrackState {
           return null
         }
         if (span.commit === focusedCommit) {
-          return Decoration.inline(span.from, span.to, {
-            class: 'blame-focused',
-          })
+          return this.createBlameDecoration(span.from, span.to, 'focused')
         }
         if (span.commit < this.commits.length) {
-          return Decoration.inline(span.from, span.to, {
-            class: 'blame-committed',
-          })
+          return this.createBlameDecoration(span.from, span.to, 'committed')
         }
-        return Decoration.inline(span.from, span.to, {
-          class: 'blame-uncommitted',
-        })
+        return this.createBlameDecoration(span.from, span.to, 'uncommitted')
       })
       .filter(Boolean) as Decoration[]
+  }
+
+  createBlameDecoration(from: number, to: number, type: string) {
+    if (from === to) {
+      return Decoration.widget(from, () => {
+        const el = document.createElement('span')
+        el.classList.add(`blame-${type}-point`)
+        return el
+      })
+    }
+    return Decoration.inline(from, to, {
+      class: `blame-${type}`,
+    })
   }
 }
 

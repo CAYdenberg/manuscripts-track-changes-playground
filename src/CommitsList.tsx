@@ -10,8 +10,10 @@ interface Props {
 const CommitsList: React.FC<Props> = ({ state, dispatch }) => {
   if (!state) return null
 
-  const { tracked } = trackPlugin.getState(state)
+  const { tracked, deco } = trackPlugin.getState(state)
   const { commits } = tracked
+
+  console.log(deco)
 
   return (
     <div>
