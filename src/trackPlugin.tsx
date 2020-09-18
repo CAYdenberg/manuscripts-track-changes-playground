@@ -1,4 +1,4 @@
-import { Plugin, Transaction } from 'prosemirror-state'
+import { Plugin } from 'prosemirror-state'
 import { Step, StepMap as Map, Transform } from 'prosemirror-transform'
 import { schema } from 'prosemirror-schema-basic'
 import uuid from 'uuid/v4'
