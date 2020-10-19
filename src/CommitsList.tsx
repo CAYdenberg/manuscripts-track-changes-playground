@@ -1,36 +1,52 @@
 import React from 'react'
-import { trackPlugin } from './trackPlugin'
-import { Transaction, EditorState } from 'prosemirror-state'
+import { EditorState } from 'prosemirror-state'
+import { focusCommit, getTrackPluginState, revertCommit } from './trackPlugin'
+import { Command } from './Editor'
 
 interface Props {
   state?: EditorState
-  dispatch: (tr: Transaction) => void
+  doCommand: (command: Command) => void
+  isCommand: (command: Command) => boolean
 }
 
-const CommitsList: React.FC<Props> = ({ state, dispatch }) => {
+const CommitsList: React.FC<Props> = ({ state, doCommand, isCommand }) => {
   if (!state) return null
 
-  const { tracked, deco } = trackPlugin.getState(state)
+  const { tracked } = getTrackPluginState(state)
   const { commits } = tracked
-
-  console.log(deco)
 
   return (
     <div>
-      {commits.map((commit, i) => (
-        <div
-          className="commit"
-          key={commit.id}
-          onClick={(e) => {
-            e.preventDefault()
-            const { tr } = state
-            tr.setMeta(trackPlugin, { type: 'FOCUS', commit: i })
-            dispatch(tr)
-          }}
-        >
-          {commit.message}
-        </div>
-      ))}
+      {commits.map((commit, i) => {
+        if (commit.status) {
+          return null
+        }
+
+        return (
+          <div
+            className="commit"
+            key={commit.id}
+            onClick={(e) => {
+              e.preventDefault()
+              doCommand(focusCommit(i))
+            }}
+          >
+            {commit.message}
+            <button
+              type="button"
+              onClick={(e) => {
+                // do NOT attempt to highlight the commit we are about to revert
+                e.preventDefault()
+                e.stopPropagation()
+                doCommand(revertCommit(i))
+              }}
+              disabled={!isCommand(revertCommit(i))}
+            >
+              Revert
+            </button>
+          </div>
+        )
+      })}
     </div>
   )
 }

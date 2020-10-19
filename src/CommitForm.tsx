@@ -1,22 +1,22 @@
 import React, { useState } from 'react'
-import { EditorState, Transaction } from 'prosemirror-state'
-import { trackPlugin } from './trackPlugin'
+import { EditorState } from 'prosemirror-state'
+import { Command } from './Editor'
+import { commit } from './trackPlugin'
 
 interface Props {
   state?: EditorState
-  dispatch: (tr: Transaction) => void
+  doCommand: (command: Command) => void
+  isCommand: (command: Command) => boolean
 }
 
-const CommitForm: React.FC<Props> = ({ state, dispatch }) => {
+const CommitForm: React.FC<Props> = ({ state, doCommand, isCommand }) => {
   if (!state) return null
 
   const [inputVal, setInputVal] = useState<string>('')
 
   const handleSubmit = (e: React.SyntheticEvent) => {
     e.preventDefault()
-    dispatch(
-      state.tr.setMeta(trackPlugin, { type: 'COMMIT', message: inputVal })
-    )
+    doCommand(commit(inputVal))
     setInputVal('')
     return false
   }
@@ -31,7 +31,11 @@ const CommitForm: React.FC<Props> = ({ state, dispatch }) => {
         value={inputVal}
         onChange={(e) => setInputVal(e.target.value)}
       />
-      <button id="commitbutton" type="submit">
+      <button
+        id="commitbutton"
+        type="submit"
+        disabled={!isCommand(commit(inputVal))}
+      >
         submit
       </button>
     </form>

@@ -1,13 +1,13 @@
 import { EditorState, Transaction } from 'prosemirror-state'
 import { EditorView } from 'prosemirror-view'
 import { useCallback, useRef, useState } from 'react'
-import { exampleSetup } from 'prosemirror-example-setup'
-import { schema } from 'prosemirror-schema-basic'
 
-import { trackPlugin } from './trackPlugin'
-import { newDocument } from './io'
+export type Command = (
+  state: EditorState,
+  dispatch?: (tr: Transaction) => void
+) => boolean
 
-export default () => {
+export default (initialState: EditorState) => () => {
   const view = useRef<EditorView>()
   const [state, setState] = useState<EditorState>()
 
@@ -22,23 +22,29 @@ export default () => {
 
   const onRender = useCallback((dom: HTMLDivElement | null) => {
     if (!dom) return
-
-    const state = EditorState.create({
-      doc: newDocument(),
-      schema,
-      plugins: exampleSetup({ schema }).concat(trackPlugin),
-    })
-    setState(state)
-
+    setState(initialState)
     view.current = new EditorView(dom, {
-      state: state,
+      state: initialState,
       dispatchTransaction: dispatch,
     })
   }, [])
+
+  const isCommand = useCallback(
+    (command: Command): boolean => !!state && command(state),
+    [state]
+  )
+
+  const doCommand = useCallback(
+    (command: Command): boolean =>
+      isCommand(command) && command(state!, dispatch),
+    [state]
+  )
 
   return {
     state,
     dispatch,
     onRender,
+    isCommand,
+    doCommand,
   }
 }
