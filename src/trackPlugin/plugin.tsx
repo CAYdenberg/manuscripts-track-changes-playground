@@ -24,7 +24,7 @@ import {
 import { DecorationSet } from 'prosemirror-view'
 import Span from './span'
 import Tracked from './tracked'
-import applyAction, { TRACK_PLUGIN_ACTIONS } from './actions'
+import applyAction from './actions'
 
 export const isTextSelection = (
   selection: Selection
@@ -92,23 +92,6 @@ export default () => {
       decorations(state) {
         return trackPluginKey.getState(state).deco
       },
-    },
-    appendTransaction(trs, _, newState) {
-      const revert = trs.find((tr) => {
-        const action = tr.getMeta(trackPluginKey)
-        return action && action.type === TRACK_PLUGIN_ACTIONS.REVERT
-      })
-      if (!revert) {
-        return
-      }
-
-      const { tracked } = trackPluginKey.getState(newState)
-      const revertTr = tracked.getRevertTr(
-        revert.getMeta(trackPluginKey).commit,
-        revert
-      )
-
-      return revertTr.docChanged ? revertTr : undefined
     },
   })
 

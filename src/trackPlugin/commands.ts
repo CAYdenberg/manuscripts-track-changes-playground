@@ -9,27 +9,14 @@ export const focusCommit = (commit: number): Command => (state, dispatch) => {
   return true
 }
 
-export const commit = (message: string): Command => (state, dispatch) => {
+export const commit = (): Command => (state, dispatch) => {
   const { tracked } = getTrackPluginState(state)
   if (!tracked.uncommittedSteps.length) {
     return false
   }
 
   if (dispatch) {
-    dispatch(state.tr.setMeta(trackPluginKey, { type: c.COMMIT, message }))
-  }
-
-  return true
-}
-
-export const revertCommit = (commit: number): Command => (state, dispatch) => {
-  const { tracked } = getTrackPluginState(state)
-  if (tracked.uncommittedSteps.length) {
-    return false
-  }
-
-  if (dispatch) {
-    dispatch(state.tr.setMeta(trackPluginKey, { type: c.REVERT, commit }))
+    dispatch(state.tr.setMeta(trackPluginKey, { type: c.COMMIT }))
   }
 
   return true

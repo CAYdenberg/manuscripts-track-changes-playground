@@ -1,5 +1,6 @@
 import plugin from './plugin'
 
 export { getTrackPluginState } from './plugin'
-export { focusCommit, commit, revertCommit } from './commands'
+export { focusCommit, commit } from './commands'
+export { replay } from './replay'
 export default plugin

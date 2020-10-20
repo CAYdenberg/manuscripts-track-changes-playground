@@ -1,6 +1,8 @@
 import { EditorState, Transaction } from 'prosemirror-state'
 import { EditorView } from 'prosemirror-view'
 import { useCallback, useRef, useState } from 'react'
+import { newDocument } from './io'
+import { replay } from './trackPlugin'
 
 export type Command = (
   state: EditorState,
@@ -9,6 +11,7 @@ export type Command = (
 
 export default (initialState: EditorState) => () => {
   const view = useRef<EditorView>()
+  const el = useRef<HTMLDivElement>()
   const [state, setState] = useState<EditorState>()
 
   // TODO: this should be debounced
@@ -22,6 +25,7 @@ export default (initialState: EditorState) => () => {
 
   const onRender = useCallback((dom: HTMLDivElement | null) => {
     if (!dom) return
+    el.current = dom
     setState(initialState)
     view.current = new EditorView(dom, {
       state: initialState,
@@ -40,11 +44,26 @@ export default (initialState: EditorState) => () => {
     [state]
   )
 
+  const replayCommits = useCallback(
+    (commits: number[]) => {
+      if (!state) return
+
+      const nextState = replay(newDocument(), state, commits)
+
+      setState(nextState)
+      if (view.current) {
+        view.current.updateState(nextState)
+      }
+    },
+    [state]
+  )
+
   return {
     state,
     dispatch,
     onRender,
     isCommand,
     doCommand,
+    replayCommits,
   }
 }

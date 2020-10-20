@@ -8,19 +8,25 @@ import { EditorState } from 'prosemirror-state'
 import { exampleSetup } from 'prosemirror-example-setup'
 import { schema } from 'prosemirror-schema-basic'
 
-import trackPlugin from './trackPlugin/plugin'
+import trackPlugin from './trackPlugin'
 import { newDocument } from './io'
 
-const useEditor = Editor(
-  EditorState.create({
+const createEditorState = () => {
+  return EditorState.create({
     doc: newDocument(),
     schema,
     plugins: exampleSetup({ schema }).concat(trackPlugin()),
   })
-)
+}
+
+const useEditor = Editor(createEditorState())
 
 const App: React.FC = () => {
-  const { onRender, state, doCommand, isCommand } = useEditor()
+  const { onRender, state, doCommand, isCommand, replayCommits } = useEditor()
+
+  if (!state) {
+    return <div id="editor" ref={onRender}></div>
+  }
 
   return (
     <React.Fragment>
@@ -29,6 +35,10 @@ const App: React.FC = () => {
       <CommitForm state={state} doCommand={doCommand} isCommand={isCommand} />
 
       <CommitsList state={state} doCommand={doCommand} isCommand={isCommand} />
+
+      <button type="button" onClick={() => replayCommits([])}>
+        Replay
+      </button>
     </React.Fragment>
   )
 }

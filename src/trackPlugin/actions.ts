@@ -3,7 +3,7 @@ import { TrackPluginState } from './plugin'
 export enum TRACK_PLUGIN_ACTIONS {
   COMMIT = 'COMMIT',
   FOCUS = 'FOCUS',
-  REVERT = 'REVERT',
+  REPLACE = 'REPLACE',
 }
 
 export default (
@@ -19,7 +19,7 @@ export default (
     case TRACK_PLUGIN_ACTIONS.COMMIT: {
       return {
         ...state,
-        tracked: state.tracked.applyCommit(action.message),
+        tracked: state.tracked.applyCommit(),
       }
     }
     case TRACK_PLUGIN_ACTIONS.FOCUS: {
@@ -28,10 +28,10 @@ export default (
         focusedCommit: action.commit,
       }
     }
-    case TRACK_PLUGIN_ACTIONS.REVERT: {
+    case TRACK_PLUGIN_ACTIONS.REPLACE: {
       return {
         ...state,
-        tracked: state.tracked.revertCommit(action.commit),
+        tracked: action.tracked,
       }
     }
     default: {

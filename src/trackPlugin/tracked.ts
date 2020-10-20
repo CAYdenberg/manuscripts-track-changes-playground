@@ -1,5 +1,4 @@
-import { Transaction } from 'prosemirror-state'
-import { Mapping, Step, StepMap as Map, Transform } from 'prosemirror-transform'
+import { Step, StepMap as Map, Transform } from 'prosemirror-transform'
 import { Decoration } from 'prosemirror-view'
 import Commit from './commit'
 import Span from './span'
@@ -103,87 +102,39 @@ export default class Tracked {
   }
 
   // Apply a transform to this state
-  applyTransform(transform: Transform) {
-    // Invert the steps in the transaction, to be able to save them in
-    // the next commit
-    const inverted = transform.steps.map((step, i) =>
-      step.invert(transform.docs[i])
-    )
-    const newBlame = updateBlameMap(
-      this.blameMap,
-      transform,
-      this.commits.length
-    )
+  applyTransform(tr: Transform) {
+    const newBlame = updateBlameMap(this.blameMap, tr, this.commits.length)
     // Create a new state—since these are part of the editor state, a
     // persistent data structure, they must not be mutated.
     return new Tracked(
       newBlame,
       this.commits,
-      this.uncommittedSteps.concat(inverted),
-      this.uncommittedMaps.concat(transform.mapping.maps)
+      this.uncommittedSteps.concat(tr.steps),
+      this.uncommittedMaps.concat(tr.mapping.maps)
     )
   }
 
   // When a transaction is marked as a commit, this is used to put any
   // uncommitted steps into a new commit.
-  applyCommit(message?: string) {
+  applyCommit() {
     if (this.uncommittedSteps.length === 0) {
       return this
     }
-    const commit = new Commit(
-      this.uncommittedSteps,
-      this.uncommittedMaps,
-      message
-    )
+    const commit = new Commit(this.uncommittedSteps, this.uncommittedMaps)
     return new Tracked(this.blameMap, this.commits.concat(commit))
   }
 
-  revertCommit(index: number) {
-    // Reverting is only possible if there are no uncommitted changes
-    if (this.uncommittedSteps.length) {
-      return this
-    }
+  replay(indices: number[]) {
     const commits = this.commits.map((commit, i) =>
-      i === index ? commit.reject() : commit
+      indices.includes(i) ? commit : commit.reject()
     )
-    return new Tracked(this.blameMap, commits)
-  }
-
-  getRevertTr(index: number, tr: Transaction) {
-    // Reverting is only possible if there are no uncommitted changes
-    if (this.uncommittedSteps.length) {
-      throw new Error('Cannot revert when there are uncommitted changes')
-    }
-
-    const commitToRevert = this.commits[index]
-
-    // This is the mapping from the document as it was at the start of
-    // the commit to the current document.
-    const remap = new Mapping(
-      this.commits
-        .slice(index)
-        .reduce((maps, c) => maps.concat(c.maps), [] as Map[])
+    // TODO: remap the blame map
+    return new Tracked(
+      this.blameMap,
+      commits,
+      this.uncommittedSteps,
+      this.uncommittedMaps
     )
-
-    // Build up a transaction that includes all (inverted) steps in this
-    // commit, rebased to the current document. They have to be applied
-    // in reverse order.
-    for (let i = commitToRevert.steps.length - 1; i >= 0; i--) {
-      // The mapping is sliced to not include maps for this step and the
-      // ones before it.
-      const remapped = commitToRevert.steps[i].map(remap.slice(i + 1))
-      if (!remapped) {
-        continue
-      }
-      const result = tr.maybeStep(remapped)
-      // If the step can be applied, add its map to our mapping
-      // pipeline, so that subsequent steps are mapped over it.
-      if (result.doc) {
-        remap.appendMap(remapped.getMap(), i)
-      }
-    }
-
-    return tr
   }
 
   findInBlameMap(pos: number) {
