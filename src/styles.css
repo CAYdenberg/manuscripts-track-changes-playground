@@ -370,7 +370,7 @@ li.ProseMirror-selectednode:after {
   position: relative;
 }
 
-.blame-committed {
+.blame {
   background-color: rgba(57, 255, 20, 0.5);
 }
 .blame-uncommitted {
@@ -380,11 +380,11 @@ li.ProseMirror-selectednode:after {
   background-color: rgba(13, 213, 252, 0.5);
 }
 
-.blame-committed-point,
+.blame-point,
 .blame-focused-point {
   position: relative;
 }
-.blame-committed-point::after,
+.blame-point::after,
 .blame-focused-point::after {
   position: absolute;
   left: -2.5px;
