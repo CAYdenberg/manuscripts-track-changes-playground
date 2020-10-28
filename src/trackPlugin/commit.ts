@@ -119,7 +119,7 @@ export const rewindAndPlayback = (
     : { commit: null, mapping: new Mapping() }
 
   // if the commit is set to be exluded, we can hoist the child commit. BUT
-  // we must add this commits steps to the mapping so that the commits
+  // we must add this commit's steps in reverse to the mapping so that the commits
   // above this one can be rebased.
   if (without.includes(commit.id)) {
     const mappingWithReverseSteps = reverseMapping(commit.steps)
@@ -132,6 +132,9 @@ export const rewindAndPlayback = (
   return rebase(commit, prev, mapping)
 }
 
+// TODO: Compose with optimizers:
+// If pick and onto share a common ancestor, both mappings can
+// be stopped at that point.
 export const cherryPick = (pick: Commit, onto: Commit) => {
   const mapping = pick.prev
     ? reverseMapping(smoosh<Step>(onto, (c) => c.steps))

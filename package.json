@@ -42,5 +42,12 @@
     "ts-jest": "^24.3.0",
     "tslint": "^5.20.1",
     "typescript": "^4.0.2"
+  },
+  "jest": {
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "helpers.ts"
+    ],
+    "clearMocks": true
   }
 }
