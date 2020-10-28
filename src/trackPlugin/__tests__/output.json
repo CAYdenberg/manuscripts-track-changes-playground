@@ -1,0 +1,30 @@
+{
+  "id": "6531c966-cabb-4dd2-bdb0-4a85ecfcb26e",
+  "blame": [
+    { "from": 53, "to": 54, "commit": "6531c966-cabb-4dd2-bdb0-4a85ecfcb26e" },
+    { "from": 61, "to": 62, "commit": "ee970f2f-561a-41b9-bba6-4db802385027" }
+  ],
+  "steps": [
+    {
+      "stepType": "replace",
+      "from": 53,
+      "to": 53,
+      "slice": { "content": [{ "type": "text", "text": "B" }] }
+    }
+  ],
+  "prev": {
+    "id": "ee970f2f-561a-41b9-bba6-4db802385027",
+    "blame": [
+      { "from": 60, "to": 61, "commit": "ee970f2f-561a-41b9-bba6-4db802385027" }
+    ],
+    "steps": [
+      {
+        "stepType": "replace",
+        "from": 60,
+        "to": 60,
+        "slice": { "content": [{ "type": "text", "text": "A" }] }
+      }
+    ],
+    "prev": null
+  }
+}
