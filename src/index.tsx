@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import ReactDOM from 'react-dom'
 import CommitsList from './CommitsList'
-import Editor from './Editor'
+import Editor, { BindEditorProps } from './Editor'
 import ExcludedCommitsList from './ExcludedCommitsList'
 
 import { EditorState } from 'prosemirror-state'
@@ -22,18 +22,27 @@ import {
   rewindAndPlayback,
 } from './trackPlugin/commit'
 
-const createEditorState = () => {
-  return EditorState.create({
-    doc: newDocument(),
-    schema,
-    plugins: exampleSetup({ schema }).concat(trackPlugin()),
-  })
+const bindEditorProps: BindEditorProps = (doc, dispatchTransaction) => {
+  return {
+    state: EditorState.create({
+      doc,
+      schema,
+      plugins: exampleSetup({ schema }).concat(trackPlugin()),
+    }),
+    dispatchTransaction,
+  }
 }
 
-const useEditor = Editor(createEditorState())
+const useEditor = Editor(bindEditorProps)
 
 const App: React.FC = () => {
-  const { onRender, state, doCommand, isCommand, replaceState } = useEditor()
+  const {
+    onRender,
+    state,
+    doCommand,
+    isCommandValid,
+    replaceState,
+  } = useEditor(newDocument())
 
   const [excluded, setExcluded] = useState<Commit[]>([])
 
@@ -66,7 +75,7 @@ const App: React.FC = () => {
 
       <button
         type="button"
-        disabled={!isCommand(freezeCommit())}
+        disabled={!isCommandValid(freezeCommit())}
         onClick={() => doCommand(freezeCommit())}
       >
         Group Changes
@@ -75,7 +84,7 @@ const App: React.FC = () => {
       <CommitsList
         state={state}
         doCommand={doCommand}
-        isCommand={isCommand}
+        isCommandValid={isCommandValid}
         submit={replayWithout}
       />
 

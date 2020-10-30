@@ -6,7 +6,7 @@ import { Command } from './Editor'
 interface Props {
   state: EditorState
   doCommand: (command: Command) => void
-  isCommand: (command: Command) => boolean
+  isCommandValid: (command: Command) => boolean
   submit: (commits: string[]) => void
 }
 
