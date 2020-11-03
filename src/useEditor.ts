@@ -1,6 +1,5 @@
-import { Node as ProsemirrorNode } from 'prosemirror-model'
 import { EditorState, Transaction } from 'prosemirror-state'
-import { DirectEditorProps, EditorView } from 'prosemirror-view'
+import { EditorView } from 'prosemirror-view'
 import { useCallback, useRef, useState } from 'react'
 
 export type Command = (
@@ -8,14 +7,15 @@ export type Command = (
   dispatch?: (tr: Transaction) => void
 ) => boolean
 
-export type BindEditorProps = (
-  doc: ProsemirrorNode,
+export type CreateView = (
+  element: HTMLDivElement,
+  state: EditorState,
   dispatch: (tr: Transaction) => void
-) => DirectEditorProps
+) => EditorView
 
-export default (bindEditorProps: BindEditorProps) => (doc: ProsemirrorNode) => {
+export default (initialState: EditorState, createView: CreateView) => {
   const view = useRef<EditorView>()
-  const [state, setState] = useState<EditorState>()
+  const [state, setState] = useState<EditorState>(initialState)
 
   const dispatch = (tr: Transaction) => {
     if (!view.current) return
@@ -29,18 +29,17 @@ export default (bindEditorProps: BindEditorProps) => (doc: ProsemirrorNode) => {
 
   const onRender = useCallback((el: HTMLDivElement | null) => {
     if (!el) return
-    view.current = new EditorView(el, bindEditorProps(doc, dispatch))
+    view.current = createView(el, state, dispatch)
     setState(view.current.state)
   }, [])
 
   const isCommandValid = useCallback(
-    (command: Command): boolean => !!state && command(state),
+    (command: Command): boolean => command(state),
     [state]
   )
 
   const doCommand = useCallback(
-    (command: Command): boolean =>
-      isCommandValid(command) && command(state!, dispatch),
+    (command: Command): boolean => command(state, dispatch),
     [state]
   )
 
@@ -55,10 +54,15 @@ export default (bindEditorProps: BindEditorProps) => (doc: ProsemirrorNode) => {
   )
 
   return {
+    // ordinary use:
     state,
     onRender,
     isCommandValid,
     doCommand,
     replaceState,
+
+    // advanced use:
+    view: view.current,
+    dispatch,
   }
 }

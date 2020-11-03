@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import ReactDOM from 'react-dom'
 import CommitsList from './CommitsList'
-import Editor, { BindEditorProps } from './Editor'
+import useEditor, { CreateView } from './useEditor'
 import ExcludedCommitsList from './ExcludedCommitsList'
 
 import { EditorState } from 'prosemirror-state'
@@ -21,19 +21,19 @@ import {
   initialCommit,
   rewindAndPlayback,
 } from './trackPlugin/commit'
+import { EditorView } from 'prosemirror-view'
 
-const bindEditorProps: BindEditorProps = (doc, dispatchTransaction) => {
-  return {
-    state: EditorState.create({
-      doc,
-      schema,
-      plugins: exampleSetup({ schema }).concat(trackPlugin()),
-    }),
-    dispatchTransaction,
-  }
-}
+const initialState = EditorState.create({
+  doc: newDocument(),
+  schema,
+  plugins: exampleSetup({ schema }).concat(trackPlugin()),
+})
 
-const useEditor = Editor(bindEditorProps)
+const createView: CreateView = (el, state, dispatch) =>
+  new EditorView(el, {
+    state,
+    dispatchTransaction: dispatch,
+  })
 
 const App: React.FC = () => {
   const {
@@ -42,7 +42,7 @@ const App: React.FC = () => {
     doCommand,
     isCommandValid,
     replaceState,
-  } = useEditor(newDocument())
+  } = useEditor(initialState, createView)
 
   const [excluded, setExcluded] = useState<Commit[]>([])
 
